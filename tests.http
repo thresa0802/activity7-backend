@@ -1,0 +1,91 @@
+### Install the "REST Client" extension in VS Code, then click "Send Request" above each ### line.
+### Change the next line to your Render URL later (no slash at the end).
+@baseUrl = http://localhost:3000
+
+### 1. GET /health  -> 200
+GET {{baseUrl}}/health
+
+### 2. GET all  -> 200 and an array
+GET {{baseUrl}}/api/records
+
+### 3. POST valid  -> 201 (the new id is saved automatically)
+# @name created
+POST {{baseUrl}}/api/records
+Content-Type: application/json
+
+{
+  "title": "Broken classroom light",
+  "category": "Electrical",
+  "description": "The light in Room B12 does not switch on.",
+  "status": "Pending"
+}
+
+### 4. GET the new record  -> 200
+GET {{baseUrl}}/api/records/{{created.response.body.id}}
+
+### 5. PUT the same id  -> 200, same id, new values
+PUT {{baseUrl}}/api/records/{{created.response.body.id}}
+Content-Type: application/json
+
+{
+  "title": "Broken classroom light fixed",
+  "category": "Electrical",
+  "description": "The light in Room B12 was repaired today.",
+  "status": "Completed"
+}
+
+### 6. DELETE the same id  -> 200 {"message":"Record deleted."}
+DELETE {{baseUrl}}/api/records/{{created.response.body.id}}
+
+### 7. GET it again  -> 404
+GET {{baseUrl}}/api/records/{{created.response.body.id}}
+
+### 8. POST missing title  -> 400
+POST {{baseUrl}}/api/records
+Content-Type: application/json
+
+{
+  "category": "Hardware",
+  "description": "No title is sent here.",
+  "status": "Pending"
+}
+
+### 9. POST invalid status  -> 400
+POST {{baseUrl}}/api/records
+Content-Type: application/json
+
+{
+  "title": "Bad status test",
+  "category": "Hardware",
+  "description": "This status is not allowed.",
+  "status": "Done"
+}
+
+### 10. Malformed JSON  -> 400
+POST {{baseUrl}}/api/records
+Content-Type: application/json
+
+{ "title": "broken json",
+
+### 11. Invalid id  -> 400
+GET {{baseUrl}}/api/records/abc
+
+### 12. Id that does not exist: GET, PUT, DELETE each  -> 404
+GET {{baseUrl}}/api/records/99999
+
+###
+PUT {{baseUrl}}/api/records/99999
+Content-Type: application/json
+
+{
+  "title": "Missing record",
+  "category": "Hardware",
+  "description": "This id does not exist.",
+  "status": "Pending"
+}
+
+###
+DELETE {{baseUrl}}/api/records/99999
+
+### 13. Unknown route  -> 404
+GET {{baseUrl}}/nothing-here
